@@ -1,42 +1,107 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEXUS AI</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#090d1b;color:white;font-family:Arial,sans-serif}
-header{padding:25px;text-align:center;border-bottom:1px solid #26304a}
-h1{color:#66d9ff;font-size:32px}
-main{max-width:650px;margin:45px auto;padding:20px}
-.card{background:#151e35;padding:25px;border-radius:18px}
-textarea{width:100%;height:120px;padding:15px;border-radius:10px;border:0;font-size:16px}
-button{background:#19b8e8;color:#07111d;padding:14px 22px;border:0;border-radius:10px;font-weight:bold;margin-top:15px}
-#result{white-space:pre-wrap;line-height:1.6;margin-top:20px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS AI</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #090d1b;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      padding: 25px;
+      text-align: center;
+      border-bottom: 1px solid #26304a;
+    }
+    h1 { color: #66d9ff; font-size: 32px; }
+    main { max-width: 650px; margin: 45px auto; padding: 20px; }
+    .card {
+      background: #151e35;
+      padding: 25px;
+      border-radius: 18px;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 15px;
+      border-radius: 10px;
+      border: 0;
+      font-size: 16px;
+    }
+    button {
+      background: #19b8e8;
+      color: #07111d;
+      padding: 14px 22px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    #result {
+      white-space: pre-wrap;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-<header>
-<h1>✦ NEXUS AI</h1>
-<p>Ton partenaire intelligent pour entreprendre.</p>
-</header>
-<main>
-<div class="card">
-<h2>Bienvenue sur NEXUS AI</h2>
-<p>Que souhaites-tu accomplir aujourd'hui ?</p>
-<textarea id="question" placeholder="Écris ton idée ou ta question..."></textarea>
-<button onclick="askAI()">Envoyer</button>
-<div id="result"></div>
-</div>
-</main>
-<script>
-function askAI(){
-const q=document.getElementById('question').value.trim();
-const r=document.getElementById('result');
-if(!q){r.textContent="Écris d'abord une question.";return;}
-r.textContent="Merci ! Ta demande a été reçue. Le moteur IA sera connecté dans une prochaine étape.";
-}
-</script>
+  <header>
+    <h1>✦ NEXUS AI</h1>
+    <p>Ton partenaire intelligent pour entreprendre.</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Bienvenue sur NEXUS AI</h2>
+      <p>Que souhaites-tu accomplir aujourd'hui ?</p>
+
+      <textarea id="question" placeholder="Écris ton idée ou ta question..."></textarea>
+      <button id="send" onclick="askAI()">Envoyer</button>
+      <div id="result"></div>
+    </div>
+  </main>
+
+  <script>
+    async function askAI() {
+      const q = document.getElementById("question").value.trim();
+      const r = document.getElementById("result");
+      const btn = document.getElementById("send");
+
+      if (!q) {
+        r.textContent = "Écris d'abord une question.";
+        return;
+      }
+
+      btn.disabled = true;
+      r.textContent = "NEXUS AI réfléchit...";
+
+      try {
+        const response = await fetch(
+          "https://nexus-ai-api.z4k29wdz5g-3e3.workers.dev",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: q })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Une erreur est survenue.");
+        }
+
+        r.textContent = data.answer || "Aucune réponse reçue.";
+      } catch (error) {
+        r.textContent = "Erreur : " + error.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
 </body>
 </html>
